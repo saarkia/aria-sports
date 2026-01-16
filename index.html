@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aria Sports - Premium Cycling Gear & Apparel</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="aria_sports_logo.png">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-top">
+      <span>Free delivery on orders over £60 | <a href="#">Winter Sale - Up to 50% off</a></span>
+    </div>
+    <div class="header-main">
+      <a href="index.html" class="logo">
+        <img src="aria_sports_logo.png" alt="Aria Sports">
+      </a>
+      
+      <nav class="nav-main">
+        <a href="index.html" class="active">Home</a>
+        <a href="products.html">Shop All</a>
+        <a href="products.html?category=Bikes">Bikes</a>
+        <a href="products.html?category=Jerseys">Clothing</a>
+        <a href="products.html?category=Helmets">Helmets</a>
+        <a href="products.html?category=Accessories">Accessories</a>
+      </nav>
+      
+      <div class="header-actions">
+        <div class="header-search">
+          <input type="text" placeholder="Search products..." id="searchInput">
+          <button type="button" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          </button>
+        </div>
+        
+        <a href="account.html" class="header-icon" aria-label="Account">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        
+        <a href="cart.html" class="header-icon" aria-label="Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        
+        <button class="menu-toggle" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <span class="hero-eyebrow">Winter Sale</span>
+        <h1>Gear Up for<br><span>Your Best Ride</span></h1>
+        <p class="hero-description">Premium cycling gear, apparel, and accessories from the world's leading brands. Save up to 50% on selected items.</p>
+        <div class="hero-buttons">
+          <a href="products.html" class="btn btn-primary btn-lg">Shop Now</a>
+          <a href="products.html?category=Bikes" class="btn btn-outline-white btn-lg">View Bikes</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="Product Images/Aethos Sport Road Bike.jpg" alt="Premium Road Bike">
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Hand-picked selections from our latest collection</p>
+      </div>
+      
+      <div class="carousel-wrapper">
+        <div class="carousel" id="featuredCarousel">
+          <!-- Products will be injected by JavaScript -->
+        </div>
+        <button class="carousel-nav prev" onclick="scrollCarousel('featuredCarousel', -1)" aria-label="Previous">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="carousel-nav next" onclick="scrollCarousel('featuredCarousel', 1)" aria-label="Next">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Cards -->
+  <section class="section" style="background: var(--color-gray-100);">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-subtitle">Find exactly what you need</p>
+      </div>
+      
+      <div class="category-grid">
+        <a href="products.html?category=Bikes" class="category-card">
+          <img src="Product Images/Krypton Force AXS Limited Edition Road Bike.jpg" alt="Bikes">
+          <div class="category-card-overlay">
+            <h3>Bikes</h3>
+            <p>Road, Gravel & More</p>
+            <span class="btn btn-primary btn-sm">Shop Bikes</span>
+          </div>
+        </a>
+        
+        <a href="products.html?category=Jerseys" class="category-card">
+          <img src="Product Images/Mille GT Spring Fall C2 Long Sleeve Jersey.jpg" alt="Jerseys">
+          <div class="category-card-overlay">
+            <h3>Jerseys</h3>
+            <p>Performance Apparel</p>
+            <span class="btn btn-primary btn-sm">Shop Jerseys</span>
+          </div>
+        </a>
+        
+        <a href="products.html?category=Helmets" class="category-card">
+          <img src="Product Images/Elemento WG11 Road Helmet.jpg" alt="Helmets">
+          <div class="category-card-overlay">
+            <h3>Helmets</h3>
+            <p>Safety First</p>
+            <span class="btn btn-primary btn-sm">Shop Helmets</span>
+          </div>
+        </a>
+        
+        <a href="products.html?category=Shoes" class="category-card">
+          <img src="Product Images/RC703 Road Cycling Shoes.jpg" alt="Shoes">
+          <div class="category-card-overlay">
+            <h3>Shoes</h3>
+            <p>Cycling & Running</p>
+            <span class="btn btn-primary btn-sm">Shop Shoes</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Products -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Popular Right Now</h2>
+        <p class="section-subtitle">Best sellers loved by cyclists</p>
+      </div>
+      
+      <div class="products-grid" id="popularProducts">
+        <!-- Products will be injected by JavaScript -->
+      </div>
+      
+      <div style="text-align: center; margin-top: var(--spacing-2xl);">
+        <a href="products.html" class="btn btn-outline btn-lg">View All Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brands Banner -->
+  <section class="section" style="background: var(--color-secondary); padding: var(--spacing-xl) 0;">
+    <div class="container">
+      <div style="display: flex; justify-content: center; align-items: center; gap: var(--spacing-3xl); flex-wrap: wrap; opacity: 0.8;">
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Assos</span>
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Rapha</span>
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Castelli</span>
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Kask</span>
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Specialized</span>
+        <span style="color: white; font-family: var(--font-heading); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em;">Shimano</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="section">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-xl); text-align: center;">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-md);"><rect width="16" height="13" x="6" y="4" rx="2"></rect><path d="m22 7-7.1 3.78c-.57.3-1.23.3-1.8 0L6 7"></path><path d="M2 8v11a2 2 0 0 0 2 2h2"></path><path d="M2 13h2"></path></svg>
+          <h4>Free Delivery</h4>
+          <p style="color: var(--color-gray-600);">On orders over £60</p>
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-md);"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+          <h4>Quality Guaranteed</h4>
+          <p style="color: var(--color-gray-600);">Premium brands only</p>
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-md);"><path d="M12 12h.01"></path><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path><path d="M22 13a18.15 18.15 0 0 1-20 0"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
+          <h4>Expert Support</h4>
+          <p style="color: var(--color-gray-600);">Cyclists helping cyclists</p>
+        </div>
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: var(--spacing-md);"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+          <h4>Easy Returns</h4>
+          <p style="color: var(--color-gray-600);">30-day return policy</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <img src="aria_sports_logo.png" alt="Aria Sports" style="height: 50px; filter: brightness(0) invert(1);">
+        <p>Your destination for premium cycling gear and apparel. We stock the best brands and provide expert advice.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          </a>
+          <a href="#" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+          </a>
+          <a href="#" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+          </a>
+        </div>
+      </div>
+      
+      <div>
+        <h4>Shop</h4>
+        <nav class="footer-links">
+          <a href="products.html?category=Bikes">Bikes</a>
+          <a href="products.html?category=Jerseys">Clothing</a>
+          <a href="products.html?category=Helmets">Helmets</a>
+          <a href="products.html?category=Shoes">Shoes</a>
+          <a href="products.html?category=Accessories">Accessories</a>
+        </nav>
+      </div>
+      
+      <div>
+        <h4>Support</h4>
+        <nav class="footer-links">
+          <a href="#">Contact Us</a>
+          <a href="#">Shipping Info</a>
+          <a href="#">Returns</a>
+          <a href="#">Size Guide</a>
+          <a href="#">FAQs</a>
+        </nav>
+      </div>
+      
+      <div>
+        <h4>Company</h4>
+        <nav class="footer-links">
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Press</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </nav>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 Aria Sports. All rights reserved. | Demo site for Braze integration.</p>
+    </div>
+  </footer>
+
+  <!-- Demo Panel (Braze Controls) -->
+  <div class="demo-panel" id="demoPanel">
+    <button class="demo-panel-toggle" onclick="toggleDemoPanel()" aria-label="Demo Controls">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </button>
+    <div class="demo-panel-content" id="demoPanelContent">
+      <div class="demo-panel-header">
+        <h3>Braze Demo Controls</h3>
+        <span class="demo-panel-close" onclick="toggleDemoPanel()">&times;</span>
+      </div>
+      <div class="demo-panel-body">
+        <div class="demo-section">
+          <h4>Current User</h4>
+          <div class="demo-user-info" id="demoUserInfo">
+            <p><strong>Status:</strong> <span id="userStatus">Anonymous</span></p>
+            <p><strong>User ID:</strong> <span id="userId">-</span></p>
+          </div>
+        </div>
+        
+        <div class="demo-section">
+          <h4>User Actions</h4>
+          <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.loginRandomUser()">Login Random User</button>
+          <button class="btn btn-outline btn-sm" onclick="BrazeDemo.logout()">Logout</button>
+        </div>
+        
+        <div class="demo-section">
+          <h4>Test Events</h4>
+          <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.logTestEvent('page_view')">Log Page View</button>
+          <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.logTestEvent('product_viewed')">Log Product View</button>
+          <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.logTestPurchase()">Log Test Purchase</button>
+        </div>
+        
+        <div class="demo-section">
+          <h4>Event Log</h4>
+          <div class="demo-log" id="demoLog">
+            <div class="demo-log-entry">Ready...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/products.js"></script>
+  <script src="js/braze-config.js"></script>
+  <script src="js/app.js"></script>
+  
+  <script>
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load featured products
+      const featuredProducts = getFeaturedProducts();
+      const featuredCarousel = document.getElementById('featuredCarousel');
+      featuredCarousel.innerHTML = featuredProducts.map(p => createProductCard(p)).join('');
+      
+      // Load popular products (random selection)
+      const shuffled = [...PRODUCTS].sort(() => 0.5 - Math.random());
+      const popularProducts = shuffled.slice(0, 8);
+      const popularGrid = document.getElementById('popularProducts');
+      popularGrid.innerHTML = popularProducts.map(p => createProductCard(p)).join('');
+      
+      // Update cart count
+      updateCartCount();
+      
+      // Initialize Braze tracking
+      BrazeTracker.trackPageView('home');
+    });
+
+    // Carousel scroll function
+    function scrollCarousel(carouselId, direction) {
+      const carousel = document.getElementById(carouselId);
+      const scrollAmount = 300 * direction;
+      carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim();
+        if (query) {
+          window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+

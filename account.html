@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - Aria Sports</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="aria_sports_logo.png">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-top">
+      <span>Free delivery on orders over £60 | <a href="#">Winter Sale - Up to 50% off</a></span>
+    </div>
+    <div class="header-main">
+      <a href="index.html" class="logo">
+        <img src="aria_sports_logo.png" alt="Aria Sports">
+      </a>
+      
+      <nav class="nav-main">
+        <a href="index.html">Home</a>
+        <a href="products.html">Shop All</a>
+        <a href="products.html?category=Bikes">Bikes</a>
+        <a href="products.html?category=Jerseys">Clothing</a>
+        <a href="products.html?category=Helmets">Helmets</a>
+        <a href="products.html?category=Accessories">Accessories</a>
+      </nav>
+      
+      <div class="header-actions">
+        <div class="header-search">
+          <input type="text" placeholder="Search products..." id="searchInput">
+          <button type="button" aria-label="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          </button>
+        </div>
+        
+        <a href="account.html" class="header-icon active" aria-label="Account">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </a>
+        
+        <a href="cart.html" class="header-icon" aria-label="Cart">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        
+        <button class="menu-toggle" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Account Page -->
+  <main class="account-page">
+    <div class="account-container" id="accountContainer">
+      <!-- Content loaded dynamically -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <img src="aria_sports_logo.png" alt="Aria Sports" style="height: 50px; filter: brightness(0) invert(1);">
+        <p>Your destination for premium cycling gear and apparel. We stock the best brands and provide expert advice.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          </a>
+          <a href="#" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
+          </a>
+          <a href="#" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+          </a>
+          <a href="#" aria-label="YouTube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+          </a>
+        </div>
+      </div>
+      
+      <div>
+        <h4>Shop</h4>
+        <nav class="footer-links">
+          <a href="products.html?category=Bikes">Bikes</a>
+          <a href="products.html?category=Jerseys">Clothing</a>
+          <a href="products.html?category=Helmets">Helmets</a>
+          <a href="products.html?category=Shoes">Shoes</a>
+          <a href="products.html?category=Accessories">Accessories</a>
+        </nav>
+      </div>
+      
+      <div>
+        <h4>Support</h4>
+        <nav class="footer-links">
+          <a href="#">Contact Us</a>
+          <a href="#">Shipping Info</a>
+          <a href="#">Returns</a>
+          <a href="#">Size Guide</a>
+          <a href="#">FAQs</a>
+        </nav>
+      </div>
+      
+      <div>
+        <h4>Company</h4>
+        <nav class="footer-links">
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Press</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </nav>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 Aria Sports. All rights reserved. | Demo site for Braze integration.</p>
+    </div>
+  </footer>
+
+  <!-- Demo Panel -->
+  <div class="demo-panel" id="demoPanel">
+    <button class="demo-panel-toggle" onclick="toggleDemoPanel()" aria-label="Demo Controls">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </button>
+    <div class="demo-panel-content" id="demoPanelContent">
+      <div class="demo-panel-header">
+        <h3>Braze Demo Controls</h3>
+        <span class="demo-panel-close" onclick="toggleDemoPanel()">&times;</span>
+      </div>
+      <div class="demo-panel-body">
+        <div class="demo-section">
+          <h4>Current User</h4>
+          <div class="demo-user-info" id="demoUserInfo">
+            <p><strong>Status:</strong> <span id="userStatus">Anonymous</span></p>
+            <p><strong>User ID:</strong> <span id="userId">-</span></p>
+          </div>
+        </div>
+        
+        <div class="demo-section">
+          <h4>User Actions</h4>
+          <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.loginRandomUser()">Login Random User</button>
+          <button class="btn btn-outline btn-sm" onclick="BrazeDemo.logout()">Logout</button>
+        </div>
+        
+        <div class="demo-section">
+          <h4>Event Log</h4>
+          <div class="demo-log" id="demoLog">
+            <div class="demo-log-entry">Ready...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/products.js"></script>
+  <script src="js/braze-config.js"></script>
+  <script src="js/app.js"></script>
+  
+  <script>
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      renderAccountPage();
+      updateCartCount();
+      UserSession.updateUI();
+      BrazeTracker.trackPageView('account');
+    });
+
+    // Render account page based on login state
+    function renderAccountPage() {
+      const container = document.getElementById('accountContainer');
+      const user = UserSession.getUser();
+      
+      if (user) {
+        renderLoggedInView(container, user);
+      } else {
+        renderLoginView(container);
+      }
+    }
+
+    // Render logged in view
+    function renderLoggedInView(container, user) {
+      const initial = user.name.charAt(0).toUpperCase();
+      
+      container.innerHTML = `
+        <div class="account-box">
+          <div class="user-profile">
+            <div class="user-avatar">${initial}</div>
+            <h2>${user.name}</h2>
+            <p class="user-email">${user.email}</p>
+            
+            <div style="background: var(--color-gray-100); border-radius: var(--radius-md); padding: var(--spacing-md); margin: var(--spacing-xl) 0; text-align: left;">
+              <p style="font-size: 0.9rem; color: var(--color-gray-600); margin: 0;">
+                <strong>Braze User ID:</strong><br>
+                ${user.id}
+              </p>
+            </div>
+            
+            <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render login view
+    function renderLoginView(container) {
+      container.innerHTML = `
+        <div class="account-box">
+          <h1>My Account</h1>
+          
+          <div class="account-tabs">
+            <div class="account-tab active" onclick="switchTab('login')">Sign In</div>
+            <div class="account-tab" onclick="switchTab('register')">Register</div>
+          </div>
+          
+          <form class="account-form active" id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password" value="demo123">
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+            <p class="form-note">Demo: Use any email. Password is pre-filled.</p>
+          </form>
+          
+          <form class="account-form" id="registerForm" onsubmit="handleRegister(event)">
+            <div class="form-group">
+              <label for="registerName">Full Name</label>
+              <input type="text" id="registerName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+              <label for="registerEmail">Email</label>
+              <input type="email" id="registerEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+              <label for="registerPassword">Password</label>
+              <input type="password" id="registerPassword" placeholder="Create a password" value="demo123">
+            </div>
+            <div class="form-group">
+              <label for="favoriteCategory">Favorite Category</label>
+              <select id="favoriteCategory" class="filter-select" style="width: 100%;">
+                <option value="">Select a category</option>
+                ${CATEGORIES.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+            <p class="form-note">Demo: Registration creates a user in Braze with custom attributes.</p>
+          </form>
+        </div>
+      `;
+    }
+
+    // Switch between login and register tabs
+    function switchTab(tab) {
+      const tabs = document.querySelectorAll('.account-tab');
+      const forms = document.querySelectorAll('.account-form');
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      forms.forEach(f => f.classList.remove('active'));
+      
+      if (tab === 'login') {
+        tabs[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+      } else {
+        tabs[1].classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+      }
+    }
+
+    // Handle login
+    async function handleLogin(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value.trim();
+      
+      if (!email) {
+        showNotification('Please enter an email', 'error');
+        return;
+      }
+      
+      // Create user object
+      const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
+      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      
+      const user = {
+        id: userId,
+        name: name,
+        email: email
+      };
+      
+      // Save to session
+      UserSession.setUser(user);
+      
+      // Identify in Braze (await to ensure IAM triggers sync)
+      await BrazeTracker.identifyUser(userId, { name, email });
+      BrazeTracker.trackEvent('user_logged_in', { method: 'email' });
+      
+      showNotification('Welcome back, ' + name + '!');
+      renderAccountPage();
+    }
+
+    // Handle registration
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const favoriteCategory = document.getElementById('favoriteCategory').value;
+      
+      if (!name || !email) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+      }
+      
+      // Create user object
+      const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
+      
+      const user = {
+        id: userId,
+        name: name,
+        email: email,
+        favoriteCategory: favoriteCategory
+      };
+      
+      // Save to session
+      UserSession.setUser(user);
+      
+      // Identify in Braze with attributes (await to ensure IAM triggers sync)
+      await BrazeTracker.identifyUser(userId, { 
+        name, 
+        email,
+        favorite_category: favoriteCategory
+      });
+      BrazeTracker.trackEvent('user_registered', { 
+        method: 'email',
+        favorite_category: favoriteCategory
+      });
+      
+      showNotification('Account created! Welcome, ' + name + '!');
+      renderAccountPage();
+    }
+
+    // Logout
+    function logout() {
+      const user = UserSession.getUser();
+      if (user) {
+        BrazeTracker.trackEvent('user_logged_out');
+      }
+      
+      UserSession.clearUser();
+      BrazeDemo.logout();
+      
+      showNotification('You have been signed out');
+      renderAccountPage();
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim();
+        if (query) {
+          window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
