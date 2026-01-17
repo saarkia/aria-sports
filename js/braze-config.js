@@ -64,17 +64,22 @@ function initializeBraze() {
       // Get the hero banner placement
       const heroBanner = braze.getBanner('aria-sports-hero');
       const container = document.getElementById('aria-sports-hero-container');
+      const heroSection = document.getElementById('hero-section');
       const fallbackContent = document.getElementById('hero-fallback-content');
       const fallbackPattern = document.getElementById('hero-fallback-pattern');
       
       if (container) {
         if (heroBanner && !heroBanner.isControl) {
-          // Insert the banner which replaces the innerHTML of the container
+          // Show the banner container and insert the banner
+          container.style.display = 'block';
           braze.insertBanner(heroBanner, container);
           
           // Hide fallback content when banner is shown
           if (fallbackContent) fallbackContent.style.display = 'none';
           if (fallbackPattern) fallbackPattern.style.display = 'none';
+          
+          // Remove hero section's default background (banner provides its own)
+          if (heroSection) heroSection.style.background = 'none';
           
           devLog('Hero banner inserted: aria-sports-hero', 'info');
         } else if (heroBanner && heroBanner.isControl) {
@@ -82,7 +87,8 @@ function initializeBraze() {
           container.style.display = 'none';
           devLog('Hero banner: user in control variant', 'info');
         } else {
-          // No banner available - keep fallback visible
+          // No banner available - keep fallback visible, hide banner container
+          container.style.display = 'none';
           devLog('No hero banner available for this user', 'info');
         }
       }
