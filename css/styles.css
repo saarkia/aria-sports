@@ -618,11 +618,17 @@ ul, ol {
 
 .product-card-body {
   padding: var(--spacing-md);
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card-brand {
-  font-size: 0.8rem;
-  color: var(--color-gray-500);
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: var(--spacing-xs);
@@ -630,34 +636,74 @@ ul, ol {
 
 .product-card-name {
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-gray-700);
   margin-bottom: var(--spacing-sm);
-  line-height: 1.3;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+.product-card-name a {
+  color: inherit;
+}
+
+.product-card-name a:hover {
+  color: var(--color-primary);
+}
+
 .product-card-price {
   display: flex;
-  align-items: baseline;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
 }
 
 .product-price {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.35rem;
+  font-weight: 700;
   color: var(--color-secondary);
 }
 
+.product-price-details {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
 .product-price-rrp {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--color-gray-500);
   text-decoration: line-through;
+}
+
+.product-price-save {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.product-card-link {
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
+}
+
+.product-card-link a {
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+  text-decoration: underline;
+  transition: color var(--transition-fast);
+}
+
+.product-card-link a:hover {
+  color: var(--color-primary);
 }
 
 .product-card-footer {
@@ -724,17 +770,19 @@ ul, ol {
 
 .carousel-wrapper {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .carousel {
   display: flex;
   gap: var(--spacing-lg);
   overflow-x: auto;
+  overflow-y: visible;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: var(--spacing-sm) 0;
+  padding-bottom: var(--spacing-lg);
 }
 
 .carousel::-webkit-scrollbar {
@@ -744,6 +792,8 @@ ul, ol {
 .carousel .product-card {
   flex: 0 0 280px;
   scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
 }
 
 .carousel-nav {

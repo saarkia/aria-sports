@@ -100,7 +100,7 @@ function createProductCard(product) {
     <div class="product-card" data-product-id="${product.id}">
       <a href="product.html?id=${product.id}" class="product-card-image">
         <img src="${product.image}" alt="${product.name}" loading="lazy">
-        ${hasDiscount ? `<div class="product-card-badges"><span class="badge badge-sale">Save ${discount}%</span></div>` : ''}
+        ${hasDiscount ? `<div class="product-card-badges"><span class="badge badge-sale">Sale</span></div>` : ''}
         <div class="product-card-actions">
           <button class="product-card-action" onclick="event.preventDefault(); Cart.addItem(${product.id})" title="Add to Cart">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
@@ -112,7 +112,15 @@ function createProductCard(product) {
         <h3 class="product-card-name"><a href="product.html?id=${product.id}">${product.name}</a></h3>
         <div class="product-card-price">
           <span class="product-price">${formatPrice(product.price)}</span>
-          ${hasDiscount ? `<span class="product-price-rrp">${formatPrice(product.rrp)}</span>` : ''}
+          ${hasDiscount ? `
+            <div class="product-price-details">
+              <span class="product-price-rrp">RRP ${formatPrice(product.rrp)}</span>
+              <span class="product-price-save">Save ${discount}%</span>
+            </div>
+          ` : ''}
+        </div>
+        <div class="product-card-link">
+          <a href="product.html?id=${product.id}">View Details & Buy</a>
         </div>
       </div>
     </div>
