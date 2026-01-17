@@ -285,6 +285,163 @@ These are separate! Don't assume syncing localStorage means Braze is synced. Tru
 
 ---
 
+## 11. Braze Banners Implementation
+
+### Minimum SDK Version
+Banners require **Web SDK version 5.8.1+**. The `subscribeToBannersUpdates` function doesn't exist in earlier versions:
+
+```javascript
+// ❌ SDK 5.0 - Will throw error
+braze.subscribeToBannersUpdates(...) // "is not a function"
+
+// ✅ SDK 5.8+
+script.src = 'https://js.appboycdn.com/web-sdk/5.8/braze.min.js';
+```
+
+### Required Configuration
+Banners require opting into user-supplied JavaScript:
+
+```javascript
+braze.initialize(apiKey, {
+  baseUrl: endpoint,
+  allowUserSuppliedJavascript: true  // Required for Banners!
+});
+```
+
+### Banner Implementation Flow
+
+```javascript
+// 1. Subscribe to banner updates (before requesting refresh)
+braze.subscribeToBannersUpdates(function(banners) {
+  const banner = braze.getBanner('placement-id');
+  
+  if (banner && !banner.isControl) {
+    // Insert banner - impressions logged automatically
+    braze.insertBanner(banner, containerElement);
+  } else if (banner && banner.isControl) {
+    // User in control variant - hide container but impression still tracked
+    container.style.display = 'none';
+  }
+});
+
+// 2. Request banner refresh (after subscriber is registered)
+braze.requestBannersRefresh(['placement-id']);
+```
+
+### Container Layout Pitfalls
+
+**Problem 1: Absolute positioning + hidden fallback = collapsed container**
+
+```html
+<!-- ❌ BAD - When fallback is hidden, hero collapses to 0 height -->
+<section class="hero">
+  <div id="banner-container" style="position: absolute; height: 100%;"></div>
+  <div id="fallback" style="display: none;">...</div>
+</section>
+```
+
+Absolutely positioned elements don't contribute to parent height. When fallback is hidden, the parent collapses.
+
+```html
+<!-- ✅ GOOD - Banner container in normal document flow -->
+<section class="hero">
+  <div id="banner-container" style="display: none; width: 100%;"></div>
+  <div id="fallback">...</div>
+</section>
+```
+
+Then toggle visibility:
+```javascript
+if (banner) {
+  container.style.display = 'block';
+  fallback.style.display = 'none';
+}
+```
+
+**Problem 2: Parent `overflow: hidden` clips banner**
+
+```css
+.hero {
+  overflow: hidden;  /* This clips banner content! */
+}
+```
+
+Remove overflow restriction when banner is active:
+```javascript
+if (banner) {
+  heroSection.style.overflow = 'visible';
+}
+```
+
+**Problem 3: Fixed height constraints**
+
+Don't constrain banner height - let it size naturally:
+```javascript
+// ❌ BAD - Fixed height clips content
+container.style.minHeight = '400px';
+
+// ✅ GOOD - Let banner determine height
+container.style.width = '100%';
+// No height constraint
+```
+
+### Fallback Content Pattern
+
+Always keep fallback content for when no banner is available:
+
+```html
+<section class="hero" id="hero-section">
+  <!-- Banner container (hidden by default) -->
+  <div id="banner-container" style="display: none;"></div>
+  
+  <!-- Fallback (shown by default) -->
+  <div id="fallback-content">
+    <h1>Default Hero Content</h1>
+  </div>
+</section>
+```
+
+```javascript
+braze.subscribeToBannersUpdates(function(banners) {
+  const banner = braze.getBanner('hero-placement');
+  const container = document.getElementById('banner-container');
+  const fallback = document.getElementById('fallback-content');
+  const heroSection = document.getElementById('hero-section');
+  
+  if (banner && !banner.isControl) {
+    container.style.display = 'block';
+    braze.insertBanner(banner, container);
+    fallback.style.display = 'none';
+    heroSection.style.background = 'none';  // Banner provides styling
+    heroSection.style.overflow = 'visible'; // Don't clip banner
+  } else if (banner && banner.isControl) {
+    container.style.display = 'none';
+    // Fallback stays visible - control variant
+  } else {
+    container.style.display = 'none';
+    // Fallback stays visible - no banner available
+  }
+});
+```
+
+### Rate Limiting
+
+Banner refresh is rate-limited:
+- One refresh per session on older SDKs
+- Token bucket (5 tokens, refill 1 per 3 min) on newer SDKs
+
+```
+Braze SDK Warning: Banners can be refreshed only once per session per user.
+```
+
+### Next Steps After Implementation
+
+1. Go to **Braze Dashboard** → **Settings** → **Banners Placements**
+2. Create placement with your Placement ID
+3. Create Banner campaign targeting the placement
+
+---
+
 ## Summary Checklist
 
 - [ ] Queue events until SDK is initialized
@@ -295,4 +452,9 @@ These are separate! Don't assume syncing localStorage means Braze is synced. Tru
 - [ ] Log both custom events AND purchases for orders
 - [ ] Include developer controls for demos
 - [ ] Test IAM timing with new users
+- [ ] Use SDK 5.8.1+ for Banners
+- [ ] Set `allowUserSuppliedJavascript: true` for Banners
+- [ ] Use normal document flow for banner containers (not absolute positioning)
+- [ ] Remove `overflow: hidden` from parent when banner is active
+- [ ] Keep fallback content for when no banner is available
 
