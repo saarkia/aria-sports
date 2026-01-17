@@ -62,10 +62,14 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-pattern"></div>
-    <div class="hero-content">
+  <!-- Hero Section - Braze Banner Placement -->
+  <section class="hero" id="hero-section">
+    <!-- Braze Banner Container (hidden by default, shown when banner is available) -->
+    <div id="aria-sports-hero-container" style="display: none; width: 100%;"></div>
+    
+    <!-- Fallback Content (shown when no banner is available) -->
+    <div class="hero-pattern" id="hero-fallback-pattern"></div>
+    <div class="hero-content" id="hero-fallback-content">
       <div class="hero-text">
         <span class="hero-eyebrow">Winter Sale</span>
         <h1>Gear Up for<br><span>Your Best Ride</span></h1>
