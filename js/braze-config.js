@@ -153,7 +153,7 @@ function processEventQueue() {
 (function() {
   // Create script element for Braze SDK
   const script = document.createElement('script');
-  script.src = 'https://js.appboycdn.com/web-sdk/5.0/braze.min.js';
+  script.src = 'https://js.appboycdn.com/web-sdk/5.8/braze.min.js';
   script.async = true;
   script.onload = function() {
     console.log('[Braze] SDK script loaded');
