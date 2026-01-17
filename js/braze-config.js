@@ -55,6 +55,43 @@ function initializeBraze() {
       devLog('Content Cards updated: ' + cards.length + ' cards', 'info');
     });
     
+    // ========================================
+    // Braze Banners - Subscribe and Refresh
+    // ========================================
+    braze.subscribeToBannersUpdates(function(banners) {
+      devLog('Banners updated', 'info');
+      
+      // Get the hero banner placement
+      const heroBanner = braze.getBanner('aria-sports-hero');
+      const container = document.getElementById('aria-sports-hero-container');
+      const fallbackContent = document.getElementById('hero-fallback-content');
+      const fallbackPattern = document.getElementById('hero-fallback-pattern');
+      
+      if (container) {
+        if (heroBanner && !heroBanner.isControl) {
+          // Insert the banner which replaces the innerHTML of the container
+          braze.insertBanner(heroBanner, container);
+          
+          // Hide fallback content when banner is shown
+          if (fallbackContent) fallbackContent.style.display = 'none';
+          if (fallbackPattern) fallbackPattern.style.display = 'none';
+          
+          devLog('Hero banner inserted: aria-sports-hero', 'info');
+        } else if (heroBanner && heroBanner.isControl) {
+          // User is in control variant - hide banner container, show fallback
+          container.style.display = 'none';
+          devLog('Hero banner: user in control variant', 'info');
+        } else {
+          // No banner available - keep fallback visible
+          devLog('No hero banner available for this user', 'info');
+        }
+      }
+    });
+    
+    // Request banner refresh for the hero placement
+    braze.requestBannersRefresh(['aria-sports-hero']);
+    devLog('Requested banner refresh: aria-sports-hero', 'info');
+    
     // NOTE: We do NOT call changeUser on every page load!
     // Braze SDK persists user identity in IndexedDB automatically.
     // We only call changeUser explicitly when:
