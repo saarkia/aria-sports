@@ -74,12 +74,25 @@ function initializeBraze() {
           container.style.display = 'block';
           braze.insertBanner(heroBanner, container);
           
+          // Ensure any iframe inside the banner can expand to its natural height
+          const iframe = container.querySelector('iframe');
+          if (iframe) {
+            iframe.style.width = '100%';
+            iframe.style.height = 'auto';
+            iframe.style.minHeight = '400px';
+            iframe.style.border = 'none';
+            iframe.style.display = 'block';
+          }
+          
           // Hide fallback content when banner is shown
           if (fallbackContent) fallbackContent.style.display = 'none';
           if (fallbackPattern) fallbackPattern.style.display = 'none';
           
-          // Remove hero section's default background (banner provides its own)
-          if (heroSection) heroSection.style.background = 'none';
+          // Remove hero section's default background and overflow restrictions (banner provides its own styling)
+          if (heroSection) {
+            heroSection.style.background = 'none';
+            heroSection.style.overflow = 'visible';
+          }
           
           devLog('Hero banner inserted: aria-sports-hero', 'info');
         } else if (heroBanner && heroBanner.isControl) {
