@@ -149,10 +149,16 @@
         </div>
         
         <div class="checkout-box">
-          <h2>Your Details (Optional)</h2>
-          <p style="color: var(--color-gray-500); font-size: 0.9rem; margin-bottom: var(--spacing-md);">
-            Enter details to identify yourself in Braze, or use the defaults for a quick demo.
-          </p>
+          <h2>Your Details ${user ? '(Already Identified)' : '(Optional)'}</h2>
+          ${user ? `
+            <p style="color: var(--color-success); font-size: 0.9rem; margin-bottom: var(--spacing-md); background: #e8f5e9; padding: 8px 12px; border-radius: 6px;">
+              ✓ You're already identified as <strong>${user.id}</strong>. Your user ID won't change during checkout.
+            </p>
+          ` : `
+            <p style="color: var(--color-gray-500); font-size: 0.9rem; margin-bottom: var(--spacing-md);">
+              Enter details to identify yourself in Braze, or use the defaults for a quick demo.
+            </p>
+          `}
           <div class="checkout-form">
             <div class="form-group">
               <label for="customerName">Name</label>
@@ -189,13 +195,21 @@
       // Generate order ID
       const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
       
-      // Identify user in Braze - MUST await this before logging events
-      // changeUser triggers a sync to fetch in-app message triggers for the user
-      const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
-      await BrazeTracker.identifyUser(userId, { name, email });
+      // Only identify user if NOT already identified
+      // This prevents overwriting a user ID set via the developer dialog
+      const existingUser = UserSession.getUser();
+      if (!existingUser) {
+        // No user set - identify with form data
+        const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
+        console.log('[Checkout] No existing user, identifying as:', userId);
+        await BrazeTracker.identifyUser(userId, { name, email });
+      } else {
+        // User already identified - don't change their ID
+        console.log('[Checkout] User already identified as:', existingUser.id, '- not changing');
+      }
       
       // Track ecommerce.order_placed event (Braze recommended event)
-      // This fires AFTER changeUser sync completes, so IAM triggers will work
+      // This fires AFTER changeUser sync completes (if needed), so IAM triggers will work
       // We await the flush to ensure data is sent to Braze immediately
       await BrazeTracker.trackOrderPlaced(orderId, items, total);
       
