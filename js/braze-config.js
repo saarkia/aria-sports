@@ -15,6 +15,22 @@ const BRAZE_CONFIG = {
   minimumIntervalBetweenTriggerActionsInSeconds: 1 // Allow IAMs to trigger rapidly (default is 30)
 };
 
+// Critical events that require immediate data flush
+// These events are time-sensitive and shouldn't wait for SDK batching
+const CRITICAL_EVENTS = [
+  'ecommerce.order_placed',
+  'ecommerce.checkout_started',
+  'ecommerce.cart_updated',
+  'user_logged_in',
+  'user_registered'
+];
+
+// Flush control - prevents rate limiting
+const MIN_FLUSH_INTERVAL = 500; // Minimum 500ms between flushes (reduced for demo)
+let lastFlushTime = 0;
+let isFlushing = false;
+let pendingFlush = false; // Track if a flush is pending
+
 // Global state
 let brazeInitialized = false;
 let loggingEnabled = true;
@@ -166,6 +182,74 @@ function processEventQueue() {
       }
     }
   }
+}
+
+// ========================================
+// Immediate Data Flush for Critical Events
+// ========================================
+
+/**
+ * Flush data to Braze immediately
+ * Used for critical events like purchases that need immediate delivery
+ * @param {boolean} immediate - Force flush even if recently flushed
+ * @returns {Promise<boolean>} - Resolves with success status
+ */
+function flushData(immediate = false) {
+  return new Promise((resolve) => {
+    if (typeof braze === 'undefined' || !brazeInitialized || !braze.requestImmediateDataFlush) {
+      console.log('[Braze] Cannot flush - SDK not ready');
+      resolve(false);
+      return;
+    }
+    
+    const now = Date.now();
+    
+    // If a flush is in progress, queue this one to run after
+    if (isFlushing) {
+      console.log('[Braze] Flush in progress, queuing next flush...');
+      pendingFlush = true;
+      // Wait for current flush to complete, then try again
+      const checkInterval = setInterval(() => {
+        if (!isFlushing) {
+          clearInterval(checkInterval);
+          pendingFlush = false;
+          flushData(immediate).then(resolve);
+        }
+      }, 100);
+      return;
+    }
+    
+    // For non-immediate flushes, check throttle
+    if (!immediate && (now - lastFlushTime) < MIN_FLUSH_INTERVAL) {
+      console.log(`[Braze] Flush throttled. Last flush was ${now - lastFlushTime}ms ago.`);
+      resolve(false);
+      return;
+    }
+    
+    isFlushing = true;
+    console.log('[Braze] Requesting immediate data flush...');
+    
+    try {
+      braze.requestImmediateDataFlush((success) => {
+        isFlushing = false;
+        lastFlushTime = Date.now();
+        
+        if (success) {
+          console.log('[Braze] ✓ Data flushed successfully!');
+          devLog('Data flushed to Braze', 'info');
+        } else {
+          // Braze SDK may return undefined, treat as success
+          console.log('[Braze] ✓ Data flush completed');
+          devLog('Data flush completed', 'info');
+        }
+        resolve(true);
+      });
+    } catch (error) {
+      isFlushing = false;
+      console.error('[Braze] Error flushing data:', error);
+      resolve(false);
+    }
+  });
 }
 
 // Load Braze SDK from CDN
@@ -380,41 +464,53 @@ const BrazeTracker = {
   // ========================================
   // ecommerce.order_placed
   // Triggered when a customer successfully places an order
+  // Returns a promise that resolves after immediate data flush
+  // Payload structure matches working Postman/API format exactly
   // ========================================
   trackOrderPlaced(orderId, cartItems, totalValue, discountCode = null) {
+    // Build products array - matching the exact structure that works via API
     const products = cartItems.map(item => {
       const product = getProductById(item.productId);
       if (!product) return null;
+      
+      // Minimal required fields only (matching working Postman payload)
       return {
         product_id: product.id.toString(),
         product_name: product.name,
-        variant_id: product.id.toString(),
-        image_url: window.location.origin + '/' + product.image,
-        product_url: window.location.origin + '/product.html?id=' + product.id,
+        variant_id: product.id.toString() + '-' + product.category.toUpperCase().replace(/\s+/g, '-'),
         quantity: item.quantity,
         price: product.price,
         metadata: {
+          sku: product.id.toString(),
           brand: product.brand,
           category: product.category
         }
       };
     }).filter(p => p !== null);
 
+    // Build event properties - minimal structure matching working API payload
     const eventProperties = {
       order_id: orderId,
       cart_id: this.getCartId(),
       total_value: totalValue,
       currency: 'GBP',
-      total_discounts: discountCode ? 10.00 : 0, // Example discount
-      discounts: discountCode ? [{ code: discountCode, amount: 10.00 }] : [],
       products: products,
       source: this.getSource(),
       metadata: {
-        order_status_url: window.location.origin + '/order-status.html?id=' + orderId,
-        order_number: orderId
+        order_status_url: window.location.origin + '/order-status.html?id=' + orderId
       }
     };
     
+    // Only add discount fields if there's actually a discount
+    if (discountCode) {
+      eventProperties.total_discounts = 10.00;
+      eventProperties.discounts = [{ code: discountCode, amount: 10.00 }];
+    }
+    
+    // Log the payload for debugging
+    console.log('[Braze] ecommerce.order_placed payload:', JSON.stringify(eventProperties, null, 2));
+    
+    // Track the event (no auto-flush - caller should call flushData() after all events)
     this.trackEvent('ecommerce.order_placed', eventProperties);
     
     // Clear the cart ID for the next session
@@ -433,6 +529,7 @@ const BrazeTracker = {
   },
   
   // Legacy purchase tracking (still useful for revenue attribution)
+  // Note: Does NOT auto-flush. Call flushData() explicitly after logging purchases.
   trackPurchase(product, quantity = 1, properties = {}) {
     const purchaseProps = {
       product_name: product.name,
@@ -449,6 +546,7 @@ const BrazeTracker = {
         quantity,
         purchaseProps
       );
+      console.log(`[Braze] Logged purchase: ${product.name} x${quantity} = £${(product.price * quantity).toFixed(2)}`);
       devLog(`Purchase: ${product.name} x${quantity} = £${(product.price * quantity).toFixed(2)}`, 'purchase');
     } else if (!brazeInitialized) {
       // Queue the purchase for when SDK is ready
@@ -469,10 +567,17 @@ const BrazeTracker = {
   },
   
   // Track custom event
+  // Note: Does NOT auto-flush. Call flushData() explicitly after logging events.
   trackEvent(eventName, properties = {}) {
     if (typeof braze !== 'undefined' && braze.logCustomEvent && sdkEnabled && brazeInitialized) {
       braze.logCustomEvent(eventName, properties);
+      console.log(`[Braze] Logged event: ${eventName}`);
       devLog(`Event: ${eventName}`, 'event');
+      
+      // Mark if this is a critical event (for logging purposes)
+      if (CRITICAL_EVENTS.includes(eventName)) {
+        console.log(`[Braze] ⚡ Critical event - remember to call flushData()!`);
+      }
     } else if (!brazeInitialized) {
       // Queue the event for when SDK is ready
       eventQueue.push({ type: 'event', eventName, properties });
@@ -524,6 +629,13 @@ const BrazeTracker = {
     this.trackEvent('user_logged_out');
     devLog('User logged out', 'user');
     updateDevUserStatus();
+  },
+  
+  // Flush all pending data to Braze immediately
+  // Call this after logging critical events (purchases, order_placed)
+  flush() {
+    console.log('[BrazeTracker] Flushing data to Braze...');
+    return flushData(true);
   }
 };
 
@@ -609,20 +721,23 @@ function toggleDevSdk() {
 }
 
 function setDevUserId() {
-  const input = document.getElementById('devUserIdInput');
-  if (!input) return;
+  const userIdInput = document.getElementById('devUserIdInput');
+  const emailInput = document.getElementById('devUserEmailInput');
+  if (!userIdInput) return;
   
-  const userId = input.value.trim();
+  const userId = userIdInput.value.trim();
+  const email = emailInput ? emailInput.value.trim() : '';
+  
   if (!userId) {
     showNotification('Please enter a user ID', 'error');
     return;
   }
   
-  // Create a simple user object
+  // Create user object with provided or generated values
   const user = {
     id: userId,
     name: userId.replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    email: userId + '@demo.ariasports.com'
+    email: email || (userId + '@demo.ariasports.com')
   };
   
   // Save to session
@@ -631,13 +746,14 @@ function setDevUserId() {
   // Identify in Braze
   BrazeTracker.identifyUser(userId, user);
   
-  // Clear input
-  input.value = '';
+  // Clear inputs
+  userIdInput.value = '';
+  if (emailInput) emailInput.value = '';
   
   // Update status
   updateDevUserStatus();
   
-  showNotification(`User set to: ${userId}`);
+  showNotification(`User set to: ${userId}${email ? ' (' + email + ')' : ''}`);
 }
 
 function resetDevToAnonymous() {
@@ -884,9 +1000,10 @@ function createDevDialog() {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               Change User
             </div>
-            <div class="dev-input-group">
-              <input type="text" id="devUserIdInput" placeholder="Enter user_id (e.g. user_123)">
-              <button class="btn btn-primary btn-sm" onclick="setDevUserId()">Set</button>
+            <div class="dev-input-group" style="flex-direction: column; gap: 8px;">
+              <input type="text" id="devUserIdInput" placeholder="external_id (e.g. aria-sports-1)" style="width: 100%;">
+              <input type="email" id="devUserEmailInput" placeholder="email (optional)" style="width: 100%;">
+              <button class="btn btn-primary btn-sm" onclick="setDevUserId()" style="width: 100%;">Set User</button>
             </div>
             <div class="dev-actions">
               <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.loginRandomUser()">
