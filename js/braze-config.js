@@ -908,6 +908,16 @@ const BrazeDemo = {
     showNotification(`ecommerce.order_placed: ${orderId}`);
   },
   
+  // Trigger review email event
+  triggerReviewEmail() {
+    BrazeTracker.trackEvent('requested_review_email', {
+      timestamp: new Date().toISOString(),
+      source: 'developer_panel'
+    });
+    BrazeTracker.flush();
+    showNotification('Triggered: requested_review_email');
+  },
+  
   // Request content cards
   requestContentCards() {
     if (typeof braze !== 'undefined' && braze.requestContentCardsRefresh) {
@@ -1033,6 +1043,9 @@ function createDevDialog() {
               </button>
               <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.logTestOrderPlaced()" style="width: 100%; font-size: 0.75rem;">
                 ecommerce.order_placed
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="BrazeDemo.triggerReviewEmail()" style="width: 100%; font-size: 0.75rem; margin-top: 8px;">
+                📧 Trigger Review Email
               </button>
             </div>
           </div>
