@@ -415,7 +415,7 @@ const BrazeTracker = {
       }
     };
     
-    this.trackEvent('ecommerce.order_placed', eventProperties);
+    this.trackEvent('sports_order_placed', eventProperties);
     
     // Clear the cart ID for the next session
     sessionStorage.removeItem('braze_cart_id');
@@ -776,7 +776,7 @@ const BrazeDemo = {
     showNotification('ecommerce.checkout_started logged');
   },
   
-  // Log ecommerce.order_placed event
+  // Log sports_order_placed event
   logTestOrderPlaced() {
     // Make sure there's something in the cart
     if (Cart.getItemCount() === 0) {
@@ -789,7 +789,7 @@ const BrazeDemo = {
     const total = Cart.getTotal();
     
     BrazeTracker.trackOrderPlaced(orderId, items, total);
-    showNotification(`ecommerce.order_placed: ${orderId}`);
+    showNotification(`sports_order_placed: ${orderId}`);
   },
   
   // Request content cards
@@ -915,7 +915,7 @@ function createDevDialog() {
                 ecommerce.checkout_started
               </button>
               <button class="btn btn-secondary btn-sm" onclick="BrazeDemo.logTestOrderPlaced()" style="width: 100%; font-size: 0.75rem;">
-                ecommerce.order_placed
+                sports_order_placed
               </button>
             </div>
           </div>
