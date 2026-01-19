@@ -952,6 +952,100 @@ function logToDemo(message) {
   logEl.scrollTop = logEl.scrollHeight;
 }
 
+// ========================================
+// URL Parameter Handler for Email Campaigns
+// ========================================
+
+// Check for Braze trigger parameters in URL
+function handleBrazeTriggerParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  // Define trigger mappings: URL param value -> Braze event name
+  const triggerMappings = {
+    'review_request': 'show_review_popup',
+    'show_review': 'show_review_popup',
+    // Add more mappings as needed:
+    // 'feedback': 'show_feedback_popup',
+    // 'promo': 'show_promo_popup',
+  };
+  
+  // Check for braze_trigger parameter (custom param for explicit triggers)
+  const brazeTrigger = urlParams.get('braze_trigger');
+  if (brazeTrigger && triggerMappings[brazeTrigger]) {
+    fireTriggerEvent(triggerMappings[brazeTrigger], 'braze_trigger', brazeTrigger);
+    return;
+  }
+  
+  // Check for utm_campaign parameter
+  const utmCampaign = urlParams.get('utm_campaign');
+  if (utmCampaign && triggerMappings[utmCampaign]) {
+    fireTriggerEvent(triggerMappings[utmCampaign], 'utm_campaign', utmCampaign);
+    return;
+  }
+  
+  // Check for utm_content parameter (alternative)
+  const utmContent = urlParams.get('utm_content');
+  if (utmContent && triggerMappings[utmContent]) {
+    fireTriggerEvent(triggerMappings[utmContent], 'utm_content', utmContent);
+    return;
+  }
+}
+
+// Fire the trigger event and clean up URL
+function fireTriggerEvent(eventName, paramName, paramValue) {
+  // Check if we've already processed this trigger in this session
+  const processedKey = `braze_trigger_processed_${eventName}`;
+  if (sessionStorage.getItem(processedKey)) {
+    console.log(`[Braze] Trigger ${eventName} already processed this session, skipping`);
+    return;
+  }
+  
+  // Mark as processed
+  sessionStorage.setItem(processedKey, Date.now().toString());
+  
+  // Collect all UTM params for event properties
+  const urlParams = new URLSearchParams(window.location.search);
+  const eventProperties = {
+    trigger_source: paramName,
+    trigger_value: paramValue,
+    landing_page: window.location.pathname,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Add all UTM parameters to properties
+  ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(param => {
+    const value = urlParams.get(param);
+    if (value) {
+      eventProperties[param] = value;
+    }
+  });
+  
+  // Fire the event
+  console.log(`[Braze] Firing trigger event: ${eventName}`, eventProperties);
+  devLog(`URL Trigger: ${eventName}`, 'info');
+  
+  BrazeTracker.trackEvent(eventName, eventProperties);
+  BrazeTracker.flush();
+  
+  // Clean up URL (remove trigger params without page reload)
+  cleanupTriggerUrl();
+}
+
+// Remove trigger params from URL for cleaner UX
+function cleanupTriggerUrl() {
+  const url = new URL(window.location.href);
+  const paramsToRemove = ['braze_trigger'];
+  
+  paramsToRemove.forEach(param => {
+    url.searchParams.delete(param);
+  });
+  
+  // Only update if we removed something
+  if (url.href !== window.location.href) {
+    window.history.replaceState({}, '', url.href);
+  }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   const user = UserSession.getUser();
@@ -959,6 +1053,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initial log entry
   devLog('Page loaded: ' + window.location.pathname, 'info');
+  
+  // Check for URL-based Braze triggers (with small delay to ensure SDK is ready)
+  setTimeout(handleBrazeTriggerParams, 500);
 });
 
 // Create and inject the developer dialog HTML
