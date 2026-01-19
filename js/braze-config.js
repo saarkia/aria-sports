@@ -452,40 +452,50 @@ const BrazeTracker = {
   // ecommerce.order_placed
   // Triggered when a customer successfully places an order
   // Returns a promise that resolves after immediate data flush
+  // Payload structure matches working Postman/API format exactly
   // ========================================
   trackOrderPlaced(orderId, cartItems, totalValue, discountCode = null) {
+    // Build products array - matching the exact structure that works via API
     const products = cartItems.map(item => {
       const product = getProductById(item.productId);
       if (!product) return null;
+      
+      // Minimal required fields only (matching working Postman payload)
       return {
         product_id: product.id.toString(),
         product_name: product.name,
-        variant_id: product.id.toString(),
-        image_url: window.location.origin + '/' + product.image,
-        product_url: window.location.origin + '/product.html?id=' + product.id,
+        variant_id: product.id.toString() + '-' + product.category.toUpperCase().replace(/\s+/g, '-'),
         quantity: item.quantity,
         price: product.price,
         metadata: {
+          sku: product.id.toString(),
           brand: product.brand,
           category: product.category
         }
       };
     }).filter(p => p !== null);
 
+    // Build event properties - minimal structure matching working API payload
     const eventProperties = {
       order_id: orderId,
       cart_id: this.getCartId(),
       total_value: totalValue,
       currency: 'GBP',
-      total_discounts: discountCode ? 10.00 : 0, // Example discount
-      discounts: discountCode ? [{ code: discountCode, amount: 10.00 }] : [],
       products: products,
       source: this.getSource(),
       metadata: {
-        order_status_url: window.location.origin + '/order-status.html?id=' + orderId,
-        order_number: orderId
+        order_status_url: window.location.origin + '/order-status.html?id=' + orderId
       }
     };
+    
+    // Only add discount fields if there's actually a discount
+    if (discountCode) {
+      eventProperties.total_discounts = 10.00;
+      eventProperties.discounts = [{ code: discountCode, amount: 10.00 }];
+    }
+    
+    // Log the payload for debugging
+    console.log('[Braze] ecommerce.order_placed payload:', JSON.stringify(eventProperties, null, 2));
     
     // Track the event and get the flush promise (critical event = immediate flush)
     const flushPromise = this.trackEvent('ecommerce.order_placed', eventProperties);
