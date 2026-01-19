@@ -104,10 +104,8 @@
       const delivery = subtotal >= 60 ? 0 : 4.99;
       const total = subtotal + delivery;
       
-      // Get current user
+      // Get current user (if identified)
       const user = UserSession.getUser();
-      const defaultName = user ? user.name : 'Demo User';
-      const defaultEmail = user ? user.email : 'demo@ariasports.com';
       
       container.innerHTML = `
         <div class="checkout-header">
@@ -149,24 +147,24 @@
         </div>
         
         <div class="checkout-box">
-          <h2>Your Details ${user ? '(Already Identified)' : '(Optional)'}</h2>
+          <h2>Your Details ${user ? '(Update if needed)' : '(Optional)'}</h2>
           ${user ? `
             <p style="color: var(--color-success); font-size: 0.9rem; margin-bottom: var(--spacing-md); background: #e8f5e9; padding: 8px 12px; border-radius: 6px;">
-              ✓ You're already identified as <strong>${user.id}</strong>. Your user ID won't change during checkout.
+              ✓ Identified as <strong>${user.id}</strong>. You can update your name/email below if needed.
             </p>
           ` : `
             <p style="color: var(--color-gray-500); font-size: 0.9rem; margin-bottom: var(--spacing-md);">
-              Enter details to identify yourself in Braze, or use the defaults for a quick demo.
+              Optional: Enter details to identify yourself in Braze. Leave blank for anonymous purchase.
             </p>
           `}
           <div class="checkout-form">
             <div class="form-group">
               <label for="customerName">Name</label>
-              <input type="text" id="customerName" value="${defaultName}" placeholder="Enter your name">
+              <input type="text" id="customerName" value="" placeholder="${user ? user.name : 'Enter your name (optional)'}">
             </div>
             <div class="form-group">
               <label for="customerEmail">Email</label>
-              <input type="email" id="customerEmail" value="${defaultEmail}" placeholder="Enter your email">
+              <input type="email" id="customerEmail" value="" placeholder="${user ? user.email : 'Enter your email (optional)'}">
             </div>
           </div>
         </div>
@@ -185,8 +183,9 @@
 
     // Complete purchase
     async function completePurchase() {
-      const name = document.getElementById('customerName').value.trim() || 'Demo User';
-      const email = document.getElementById('customerEmail').value.trim() || 'demo@ariasports.com';
+      // Get form values (may be empty - that's OK)
+      const nameInput = document.getElementById('customerName').value.trim();
+      const emailInput = document.getElementById('customerEmail').value.trim();
       const items = Cart.getItems();
       const subtotal = Cart.getTotal();
       const delivery = subtotal >= 60 ? 0 : 4.99;
@@ -195,18 +194,49 @@
       // Generate order ID
       const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
       
-      // Only identify user if NOT already identified
-      // This prevents overwriting a user ID set via the developer dialog
+      // Handle user identification and attribute updates
       const existingUser = UserSession.getUser();
-      if (!existingUser) {
-        // No user set - identify with form data
-        const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
-        console.log('[Checkout] No existing user, identifying as:', userId);
-        await BrazeTracker.identifyUser(userId, { name, email });
+      
+      if (existingUser) {
+        // User is already identified - check if they want to update attributes
+        console.log('[Checkout] User already identified as:', existingUser.id);
+        
+        if (nameInput || emailInput) {
+          // User entered new values - update their attributes in Braze
+          console.log('[Checkout] Updating user attributes...');
+          if (typeof braze !== 'undefined' && braze.getUser) {
+            const user = braze.getUser();
+            if (user) {
+              if (nameInput) {
+                const [firstName, ...lastNameParts] = nameInput.split(' ');
+                user.setFirstName(firstName);
+                if (lastNameParts.length > 0) {
+                  user.setLastName(lastNameParts.join(' '));
+                }
+                console.log('[Checkout] Updated name:', nameInput);
+              }
+              if (emailInput) {
+                user.setEmail(emailInput);
+                console.log('[Checkout] Updated email:', emailInput);
+              }
+            }
+          }
+        }
+      } else if (emailInput) {
+        // No existing user, but they entered an email - identify them
+        const userId = emailInput.replace(/[^a-zA-Z0-9]/g, '_');
+        console.log('[Checkout] Identifying new user:', userId);
+        await BrazeTracker.identifyUser(userId, { 
+          name: nameInput || 'Guest', 
+          email: emailInput 
+        });
       } else {
-        // User already identified - don't change their ID
-        console.log('[Checkout] User already identified as:', existingUser.id, '- not changing');
+        // Anonymous purchase - no user identification
+        console.log('[Checkout] Anonymous purchase (no user identified)');
       }
+      
+      // Use display name for success page
+      const displayName = nameInput || (existingUser ? existingUser.name : 'Guest');
       
       // =====================================================
       // STEP 1: Log all Braze events (without waiting for flush)
@@ -238,7 +268,7 @@
       
       // Show success
       checkoutComplete = true;
-      showSuccessPage(orderId, total, name);
+      showSuccessPage(orderId, total, displayName);
       
       // Confetti!
       createConfetti();
