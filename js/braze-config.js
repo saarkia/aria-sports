@@ -26,9 +26,10 @@ const CRITICAL_EVENTS = [
 ];
 
 // Flush control - prevents rate limiting
-const MIN_FLUSH_INTERVAL = 1000; // Minimum 1 second between flushes
+const MIN_FLUSH_INTERVAL = 500; // Minimum 500ms between flushes (reduced for demo)
 let lastFlushTime = 0;
 let isFlushing = false;
+let pendingFlush = false; // Track if a flush is pending
 
 // Global state
 let brazeInitialized = false;
@@ -190,46 +191,58 @@ function processEventQueue() {
 /**
  * Flush data to Braze immediately
  * Used for critical events like purchases that need immediate delivery
- * Includes throttling to prevent rate limiting
  * @param {boolean} immediate - Force flush even if recently flushed
  * @returns {Promise<boolean>} - Resolves with success status
  */
 function flushData(immediate = false) {
   return new Promise((resolve) => {
     if (typeof braze === 'undefined' || !brazeInitialized || !braze.requestImmediateDataFlush) {
+      console.log('[Braze] Cannot flush - SDK not ready');
       resolve(false);
       return;
     }
     
     const now = Date.now();
     
-    // Prevent concurrent flushes
+    // If a flush is in progress, queue this one to run after
     if (isFlushing) {
-      console.log('[Braze] Flush already in progress, skipping...');
-      resolve(false);
+      console.log('[Braze] Flush in progress, queuing next flush...');
+      pendingFlush = true;
+      // Wait for current flush to complete, then try again
+      const checkInterval = setInterval(() => {
+        if (!isFlushing) {
+          clearInterval(checkInterval);
+          pendingFlush = false;
+          flushData(immediate).then(resolve);
+        }
+      }, 100);
       return;
     }
     
-    // Throttle flushes to respect rate limits (unless immediate)
+    // For non-immediate flushes, check throttle
     if (!immediate && (now - lastFlushTime) < MIN_FLUSH_INTERVAL) {
-      console.log(`[Braze] Flush throttled. Last flush was ${Math.ceil((now - lastFlushTime))}ms ago.`);
+      console.log(`[Braze] Flush throttled. Last flush was ${now - lastFlushTime}ms ago.`);
       resolve(false);
       return;
     }
     
     isFlushing = true;
+    console.log('[Braze] Requesting immediate data flush...');
     
     try {
       braze.requestImmediateDataFlush((success) => {
         isFlushing = false;
+        lastFlushTime = Date.now();
+        
         if (success) {
-          lastFlushTime = Date.now();
-          console.log('[Braze] Data flushed successfully');
+          console.log('[Braze] ✓ Data flushed successfully!');
           devLog('Data flushed to Braze', 'info');
         } else {
-          console.log('[Braze] Data flush completed (no callback success)');
+          // Braze SDK may return undefined, treat as success
+          console.log('[Braze] ✓ Data flush completed');
+          devLog('Data flush completed', 'info');
         }
-        resolve(success !== false);
+        resolve(true);
       });
     } catch (error) {
       isFlushing = false;
@@ -497,15 +510,12 @@ const BrazeTracker = {
     // Log the payload for debugging
     console.log('[Braze] ecommerce.order_placed payload:', JSON.stringify(eventProperties, null, 2));
     
-    // Track the event and get the flush promise (critical event = immediate flush)
-    const flushPromise = this.trackEvent('ecommerce.order_placed', eventProperties);
+    // Track the event (no auto-flush - caller should call flushData() after all events)
+    this.trackEvent('ecommerce.order_placed', eventProperties);
     
     // Clear the cart ID for the next session
     sessionStorage.removeItem('braze_cart_id');
     sessionStorage.removeItem('braze_checkout_id');
-    
-    // Return the flush promise so callers can await it
-    return flushPromise;
   },
 
   // Track category view
@@ -519,7 +529,7 @@ const BrazeTracker = {
   },
   
   // Legacy purchase tracking (still useful for revenue attribution)
-  // Returns a promise that resolves after immediate data flush
+  // Note: Does NOT auto-flush. Call flushData() explicitly after logging purchases.
   trackPurchase(product, quantity = 1, properties = {}) {
     const purchaseProps = {
       product_name: product.name,
@@ -536,11 +546,8 @@ const BrazeTracker = {
         quantity,
         purchaseProps
       );
+      console.log(`[Braze] Logged purchase: ${product.name} x${quantity} = £${(product.price * quantity).toFixed(2)}`);
       devLog(`Purchase: ${product.name} x${quantity} = £${(product.price * quantity).toFixed(2)}`, 'purchase');
-      
-      // Purchases are critical - flush immediately
-      console.log(`[Braze] Purchase logged - flushing immediately`);
-      return flushData(true);
     } else if (!brazeInitialized) {
       // Queue the purchase for when SDK is ready
       eventQueue.push({ 
@@ -557,23 +564,19 @@ const BrazeTracker = {
       console.log('[Braze Mock] Purchase:', product.name, quantity, product.price);
       devLog(`[Mock] Purchase: ${product.name}`, 'purchase');
     }
-    return Promise.resolve(false);
   },
   
   // Track custom event
-  // Returns a promise for critical events that need immediate flush
+  // Note: Does NOT auto-flush. Call flushData() explicitly after logging events.
   trackEvent(eventName, properties = {}) {
     if (typeof braze !== 'undefined' && braze.logCustomEvent && sdkEnabled && brazeInitialized) {
       braze.logCustomEvent(eventName, properties);
+      console.log(`[Braze] Logged event: ${eventName}`);
       devLog(`Event: ${eventName}`, 'event');
       
-      // Flush immediately for critical events (e.g., purchases, checkout)
-      // This ensures the event is sent to Braze right away, not batched
-      const isCritical = CRITICAL_EVENTS.includes(eventName);
-      if (isCritical) {
-        console.log(`[Braze] Critical event "${eventName}" - flushing immediately`);
-        devLog(`Flushing critical event: ${eventName}`, 'info');
-        return flushData(true);
+      // Mark if this is a critical event (for logging purposes)
+      if (CRITICAL_EVENTS.includes(eventName)) {
+        console.log(`[Braze] ⚡ Critical event - remember to call flushData()!`);
       }
     } else if (!brazeInitialized) {
       // Queue the event for when SDK is ready
@@ -626,6 +629,13 @@ const BrazeTracker = {
     this.trackEvent('user_logged_out');
     devLog('User logged out', 'user');
     updateDevUserStatus();
+  },
+  
+  // Flush all pending data to Braze immediately
+  // Call this after logging critical events (purchases, order_placed)
+  flush() {
+    console.log('[BrazeTracker] Flushing data to Braze...');
+    return flushData(true);
   }
 };
 

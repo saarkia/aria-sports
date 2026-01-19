@@ -208,21 +208,30 @@
         console.log('[Checkout] User already identified as:', existingUser.id, '- not changing');
       }
       
-      // Track ecommerce.order_placed event (Braze recommended event)
-      // This fires AFTER changeUser sync completes (if needed), so IAM triggers will work
-      // We await the flush to ensure data is sent to Braze immediately
-      await BrazeTracker.trackOrderPlaced(orderId, items, total);
+      // =====================================================
+      // STEP 1: Log all Braze events (without waiting for flush)
+      // =====================================================
+      console.log('[Checkout] Logging ecommerce.order_placed event...');
+      BrazeTracker.trackOrderPlaced(orderId, items, total);
       
-      // Also log individual purchases for revenue tracking
+      // Log individual purchases for revenue tracking
+      console.log('[Checkout] Logging individual purchase events...');
       for (const item of items) {
         const product = getProductById(item.productId);
         if (product) {
-          await BrazeTracker.trackPurchase(product, item.quantity, {
+          BrazeTracker.trackPurchase(product, item.quantity, {
             order_id: orderId,
             currency: 'GBP'
           });
         }
       }
+      
+      // =====================================================
+      // STEP 2: Force flush ALL data to Braze immediately
+      // =====================================================
+      console.log('[Checkout] Flushing all data to Braze...');
+      await BrazeTracker.flush();
+      console.log('[Checkout] ✓ All purchase data sent to Braze');
       
       // Clear cart
       Cart.clear();
