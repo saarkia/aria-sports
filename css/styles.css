@@ -461,14 +461,14 @@ ul, ol {
   margin: 0 auto;
   padding: var(--spacing-3xl) var(--spacing-lg);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.4fr 0.6fr;
   gap: var(--spacing-2xl);
   align-items: center;
   min-height: 500px;
 }
 
 .hero-content .hero-text {
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .hero-text {
@@ -488,10 +488,10 @@ ul, ol {
 }
 
 .hero h1 {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   color: var(--color-white);
   margin-bottom: var(--spacing-md);
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .hero h1 span {
@@ -515,7 +515,7 @@ ul, ol {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 55%;
+  width: 45%;
   animation: fadeInRight 0.8s ease-out;
   overflow: hidden;
 }
