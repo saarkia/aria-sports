@@ -15,6 +15,21 @@ const BRAZE_CONFIG = {
   minimumIntervalBetweenTriggerActionsInSeconds: 1 // Allow IAMs to trigger rapidly (default is 30)
 };
 
+// Critical events that require immediate data flush
+// These events are time-sensitive and shouldn't wait for SDK batching
+const CRITICAL_EVENTS = [
+  'ecommerce.order_placed',
+  'ecommerce.checkout_started',
+  'ecommerce.cart_updated',
+  'user_logged_in',
+  'user_registered'
+];
+
+// Flush control - prevents rate limiting
+const MIN_FLUSH_INTERVAL = 1000; // Minimum 1 second between flushes
+let lastFlushTime = 0;
+let isFlushing = false;
+
 // Global state
 let brazeInitialized = false;
 let loggingEnabled = true;
@@ -166,6 +181,62 @@ function processEventQueue() {
       }
     }
   }
+}
+
+// ========================================
+// Immediate Data Flush for Critical Events
+// ========================================
+
+/**
+ * Flush data to Braze immediately
+ * Used for critical events like purchases that need immediate delivery
+ * Includes throttling to prevent rate limiting
+ * @param {boolean} immediate - Force flush even if recently flushed
+ * @returns {Promise<boolean>} - Resolves with success status
+ */
+function flushData(immediate = false) {
+  return new Promise((resolve) => {
+    if (typeof braze === 'undefined' || !brazeInitialized || !braze.requestImmediateDataFlush) {
+      resolve(false);
+      return;
+    }
+    
+    const now = Date.now();
+    
+    // Prevent concurrent flushes
+    if (isFlushing) {
+      console.log('[Braze] Flush already in progress, skipping...');
+      resolve(false);
+      return;
+    }
+    
+    // Throttle flushes to respect rate limits (unless immediate)
+    if (!immediate && (now - lastFlushTime) < MIN_FLUSH_INTERVAL) {
+      console.log(`[Braze] Flush throttled. Last flush was ${Math.ceil((now - lastFlushTime))}ms ago.`);
+      resolve(false);
+      return;
+    }
+    
+    isFlushing = true;
+    
+    try {
+      braze.requestImmediateDataFlush((success) => {
+        isFlushing = false;
+        if (success) {
+          lastFlushTime = Date.now();
+          console.log('[Braze] Data flushed successfully');
+          devLog('Data flushed to Braze', 'info');
+        } else {
+          console.log('[Braze] Data flush completed (no callback success)');
+        }
+        resolve(success !== false);
+      });
+    } catch (error) {
+      isFlushing = false;
+      console.error('[Braze] Error flushing data:', error);
+      resolve(false);
+    }
+  });
 }
 
 // Load Braze SDK from CDN
@@ -380,6 +451,7 @@ const BrazeTracker = {
   // ========================================
   // ecommerce.order_placed
   // Triggered when a customer successfully places an order
+  // Returns a promise that resolves after immediate data flush
   // ========================================
   trackOrderPlaced(orderId, cartItems, totalValue, discountCode = null) {
     const products = cartItems.map(item => {
@@ -415,11 +487,15 @@ const BrazeTracker = {
       }
     };
     
-    this.trackEvent('ecommerce.order_placed', eventProperties);
+    // Track the event and get the flush promise (critical event = immediate flush)
+    const flushPromise = this.trackEvent('ecommerce.order_placed', eventProperties);
     
     // Clear the cart ID for the next session
     sessionStorage.removeItem('braze_cart_id');
     sessionStorage.removeItem('braze_checkout_id');
+    
+    // Return the flush promise so callers can await it
+    return flushPromise;
   },
 
   // Track category view
@@ -433,6 +509,7 @@ const BrazeTracker = {
   },
   
   // Legacy purchase tracking (still useful for revenue attribution)
+  // Returns a promise that resolves after immediate data flush
   trackPurchase(product, quantity = 1, properties = {}) {
     const purchaseProps = {
       product_name: product.name,
@@ -450,6 +527,10 @@ const BrazeTracker = {
         purchaseProps
       );
       devLog(`Purchase: ${product.name} x${quantity} = £${(product.price * quantity).toFixed(2)}`, 'purchase');
+      
+      // Purchases are critical - flush immediately
+      console.log(`[Braze] Purchase logged - flushing immediately`);
+      return flushData(true);
     } else if (!brazeInitialized) {
       // Queue the purchase for when SDK is ready
       eventQueue.push({ 
@@ -466,13 +547,24 @@ const BrazeTracker = {
       console.log('[Braze Mock] Purchase:', product.name, quantity, product.price);
       devLog(`[Mock] Purchase: ${product.name}`, 'purchase');
     }
+    return Promise.resolve(false);
   },
   
   // Track custom event
+  // Returns a promise for critical events that need immediate flush
   trackEvent(eventName, properties = {}) {
     if (typeof braze !== 'undefined' && braze.logCustomEvent && sdkEnabled && brazeInitialized) {
       braze.logCustomEvent(eventName, properties);
       devLog(`Event: ${eventName}`, 'event');
+      
+      // Flush immediately for critical events (e.g., purchases, checkout)
+      // This ensures the event is sent to Braze right away, not batched
+      const isCritical = CRITICAL_EVENTS.includes(eventName);
+      if (isCritical) {
+        console.log(`[Braze] Critical event "${eventName}" - flushing immediately`);
+        devLog(`Flushing critical event: ${eventName}`, 'info');
+        return flushData(true);
+      }
     } else if (!brazeInitialized) {
       // Queue the event for when SDK is ready
       eventQueue.push({ type: 'event', eventName, properties });

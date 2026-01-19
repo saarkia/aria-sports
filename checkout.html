@@ -196,18 +196,19 @@
       
       // Track ecommerce.order_placed event (Braze recommended event)
       // This fires AFTER changeUser sync completes, so IAM triggers will work
-      BrazeTracker.trackOrderPlaced(orderId, items, total);
+      // We await the flush to ensure data is sent to Braze immediately
+      await BrazeTracker.trackOrderPlaced(orderId, items, total);
       
       // Also log individual purchases for revenue tracking
-      items.forEach(item => {
+      for (const item of items) {
         const product = getProductById(item.productId);
         if (product) {
-          BrazeTracker.trackPurchase(product, item.quantity, {
+          await BrazeTracker.trackPurchase(product, item.quantity, {
             order_id: orderId,
             currency: 'GBP'
           });
         }
-      });
+      }
       
       // Clear cart
       Cart.clear();
