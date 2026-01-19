@@ -194,7 +194,7 @@
       const userId = email.replace(/[^a-zA-Z0-9]/g, '_');
       await BrazeTracker.identifyUser(userId, { name, email });
       
-      // Track ecommerce.order_placed event (Braze recommended event)
+      // Track sports_order_placed event
       // This fires AFTER changeUser sync completes, so IAM triggers will work
       BrazeTracker.trackOrderPlaced(orderId, items, total);
       
@@ -247,7 +247,7 @@
             <p style="font-size: 0.9rem; color: var(--color-gray-600); margin: 0;">
               <strong>Braze eCommerce Events Logged:</strong><br>
               • <code>ecommerce.checkout_started</code><br>
-              • <code>ecommerce.order_placed</code><br>
+              • <code>sports_order_placed</code><br>
               • <code>logPurchase()</code> for each item<br>
               • User identified via <code>changeUser()</code>
             </p>
